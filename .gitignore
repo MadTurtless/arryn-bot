@@ -1,0 +1,6 @@
+.idea
+.env
+pyproject.toml
+uv.lock
+
+discord.log

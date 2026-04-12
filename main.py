@@ -1,16 +1,30 @@
-# This is a sample Python script.
+import discord
+from discord.ext import commands
+import logging
+from dotenv import load_dotenv
+import os
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+load_dotenv()
 
+token = os.getenv("DISCORD_TOKEN")
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+8 to toggle the breakpoint.
+handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="w")
+intents = discord.Intents.default()
+intents.message_content = True
 
+bot = commands.Bot(command_prefix='!', intents=intents)
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+@bot.event
+async def on_ready():
+    try:
+        await bot.tree.sync()
+        print(f"Synced slash commands")
+    except Exception as e:
+        print(f"Failed to sync commands: {e}")
+    print(f"Logged in as {bot.user}")
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+@bot.hybrid_command()
+async def hello(ctx):
+    await ctx.send('Hello!')
+
+bot.run(token)
