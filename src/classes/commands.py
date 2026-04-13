@@ -21,7 +21,7 @@ class Commands(commands.Cog):
         stored_msg_id = os.getenv("REACTION_ROLES_MESSAGE_ID")
 
         guild = ctx.guild
-        channel = guild.get_channel(int(os.getenv("REACTION_ROLES_CHANNGEL_ID")))
+        channel = guild.get_channel(int(os.getenv("REACTION_ROLES_CHANNEL_ID")))
 
         async for msg in channel.history():
             if msg.author == channel.guild.me:
