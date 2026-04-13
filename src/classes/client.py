@@ -2,7 +2,6 @@ import discord
 
 from src.classes.reaction_roles import ReactionRoles
 
-
 class Client(discord.Client):
     def __init__(self, r_roles_msg_id, *args, **kwargs):
         super().__init__(*args, **kwargs)

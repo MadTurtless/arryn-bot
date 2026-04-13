@@ -1,7 +1,8 @@
-import discord
-from dotenv import load_dotenv
 import os
 import logging
+import discord
+
+from dotenv import load_dotenv
 
 from src.classes.client import Client
 
