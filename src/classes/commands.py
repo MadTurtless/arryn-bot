@@ -3,7 +3,7 @@ import os
 from discord.ext import commands
 from dotenv import load_dotenv, set_key
 
-from utils.helper import build_embed, check_perms
+from src.utils.helper import build_embed, check_perms
 
 
 class Commands(commands.Cog):
