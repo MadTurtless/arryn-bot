@@ -18,8 +18,13 @@ async def build_embed():
         title="Reaction Roles",
         colour=discord.Colour.blue(),
         description="""
-            Get your roles here:
-            [WIP]
+            **Continents**
+            \U0001F1FF\U0001F1E6: Africa
+            \U0001F1E8\U0001F1F3: Asia
+            \U0001F1E6\U0001F1FA: Australia
+            \U0001F1EA\U0001F1FA: Europe
+            \U0001F1FA\U0001F1F8: North America
+            \U0001F1E7\U0001F1F7: South America
             """
     )
     return embed

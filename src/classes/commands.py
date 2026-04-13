@@ -6,6 +6,18 @@ from dotenv import load_dotenv, set_key
 from src.utils.helper import build_embed, check_perms
 
 
+async def add_reactions(msg):
+    emojis = ["\U0001F1E6\U0001F1FA", #Australian Flag
+              "\U0001F1E7\U0001F1F7", #Brazilian Flag
+              "\U0001F1E8\U0001F1F3", #Chinese Flag
+              "\U0001F1EA\U0001F1FA", #European Flag
+              "\U0001F1FF\U0001F1E6", #South African Flag
+              "\U0001F1FA\U0001F1F8"] #United States Flag
+    for emoji in emojis:
+        await msg.add_reaction(emoji)
+    return
+
+
 class Commands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -14,7 +26,7 @@ class Commands(commands.Cog):
     async def on_ready(self):
         pass
 
-    @commands.hybrid_command()
+    @commands.hybrid_command(description="Send the embed message that will be used for reaction roles.")
     @check_perms()
     async def send_reaction_embed(self, ctx):
         load_dotenv(override=True)
@@ -30,8 +42,7 @@ class Commands(commands.Cog):
                     return
 
         new_msg = await channel.send(embed=await build_embed())
-        await new_msg.add_reaction("\U0001f7e2")
-        await new_msg.add_reaction("\U0001F7E3")
+        await add_reactions(new_msg)
 
         dotenv_path = Path(".env")
         set_key(dotenv_path,"REACTION_ROLES_MESSAGE_ID", str(new_msg.id))
