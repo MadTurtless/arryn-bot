@@ -1,15 +1,14 @@
+import asyncio
 import os
 import logging
 import discord
+from discord.ext import commands
 
 from dotenv import load_dotenv
-
-from src.classes.client import Client
 
 load_dotenv()
 
 token = os.getenv("DISCORD_TOKEN")
-r_roles_msg_id = int(os.getenv("REACTION_ROLES_MESSAGE_ID"))
 
 handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="w")
 intents = discord.Intents.default()
@@ -17,6 +16,22 @@ intents.message_content = True
 intents.reactions = True
 intents.members = True
 
-client = Client(intents=intents, r_roles_msg_id=r_roles_msg_id)
+bot = commands.Bot(intents=intents, command_prefix="!")
 
-client.run(token)
+@bot.event
+async def on_ready():
+    print(f"{bot.user} has connected to Discord!")
+
+    try:
+        synced = await bot.tree.sync()
+        print(f"{bot.user} has synced {len(synced)} commands")
+    except Exception as e:
+        print(f"Failed to sync commands: {e}")
+
+async def main():
+    async with bot:
+        await bot.load_extension("src.classes.commands")
+        await bot.load_extension("src.classes.reaction_roles")
+        await bot.start(token)
+
+asyncio.run(main())
