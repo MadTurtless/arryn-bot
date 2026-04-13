@@ -12,8 +12,8 @@ from src.utils.helper import build_embed, check_perms
 async def add_reactions(msg):
     """
     This function acts as a helper to add reactions to a message.
-    :param msg:
-    :return:
+    :param msg: discord.ext.commands.Message object
+    :return: void
     """
     emojis = ["\U0001F1E6\U0001F1FA", #Australian Flag
               "\U0001F1E7\U0001F1F7", #Brazilian Flag
@@ -30,11 +30,11 @@ class Commands(commands.Cog):
     """
     The Commands class is a cog implementation that acts as a wrapper for generic commands.
     More specific functionalities can be found in their own classes.
+    Note: This class modifies environment variables! Check that they're present if something breaks.
     """
     def __init__(self, bot):
         """
-        Initializer for the Commands class
-        :param bot:
+        :param bot: discord.ext.commands.Bot object
         """
         self.bot = bot
 
@@ -45,8 +45,8 @@ class Commands(commands.Cog):
         """
         This function/command sends an embed message to a specific channel and adds reactions to it.
         These are then used to assign roles.
-        :param ctx:
-        :return:
+        :param ctx: discord.ext.commands.Context object
+        :return: void
         """
         load_dotenv(override=True)
         stored_msg_id = os.getenv("REACTION_ROLES_MESSAGE_ID")
@@ -71,7 +71,7 @@ class Commands(commands.Cog):
 async def setup(bot):
     """
     This function adds all the commands to the bot.
-    :param bot:
-    :return:
+    :param bot: discord.ext.commands.Bot object
+    :return: void
     """
     await bot.add_cog(Commands(bot))

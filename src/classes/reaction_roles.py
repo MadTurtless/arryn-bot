@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 
 class ReactionRoles(commands.Cog):
     """
-    This class is a wrapper for reaction roles functionality.
+    This class is a wrapper for the reaction roles functionality.
     It handles the translation of emojis to role ids, and assigns the roles.
     """
     roles = {
@@ -23,8 +23,7 @@ class ReactionRoles(commands.Cog):
 
     def __init__(self, bot):
         """
-        Initialise the class
-        :param bot:
+        :param bot: discord.ext.commands.Bot object
         """
         self.bot = bot
 
@@ -34,8 +33,8 @@ class ReactionRoles(commands.Cog):
         This is an event listener for the 'on_raw_reaction_add' event.
         When a reaction is added to any message, this event is triggered.
         The function filters for the specific message to listen to and then assigns roles.
-        :param payload:
-        :return:
+        :param payload: discord.RawReactionActionEvent object
+        :return: void
         """
         load_dotenv(override=True)
         r_roles_msg_id = int(os.getenv("REACTION_ROLES_MESSAGE_ID"))
@@ -55,8 +54,8 @@ class ReactionRoles(commands.Cog):
         This is an event listener for the 'on_raw_reaction_remove' event.
         Like the on_raw_reaction_add event, this event is triggered when a reaction is removed.
         The function filters for the specific message to listen to and then removes roles.
-        :param payload:
-        :return:
+        :param payload: discord.RawReactionActionEvent object
+        :return: void
         """
         load_dotenv(override=True)
         r_roles_msg_id = int(os.getenv("REACTION_ROLES_MESSAGE_ID"))
@@ -74,7 +73,7 @@ class ReactionRoles(commands.Cog):
 async def setup(bot):
     """
     This function adds the reaction roles functionality to the bot.
-    :param bot:
-    :return:
+    :param bot: discord.ext.commands.Bot object
+    :return: void
     """
     await bot.add_cog(ReactionRoles(bot))
