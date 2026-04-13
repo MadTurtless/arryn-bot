@@ -1,9 +1,17 @@
+"""
+Handles reaction roles
+"""
+
 import os
 
 from discord.ext import commands
 from dotenv import load_dotenv
 
 class ReactionRoles(commands.Cog):
+    """
+    This class is a wrapper for reaction roles functionality.
+    It handles the translation of emojis to role ids, and assigns the roles.
+    """
     roles = {
         "\U0001F1E6\U0001F1FA": 1493250007061630986,  # Australian Flag
         "\U0001F1E7\U0001F1F7": 1493250050577399958,  # Brazilian Flag
@@ -14,14 +22,21 @@ class ReactionRoles(commands.Cog):
     }
 
     def __init__(self, bot):
+        """
+        Initialise the class
+        :param bot:
+        """
         self.bot = bot
 
     @commands.Cog.listener()
-    async def on_ready(self):
-        pass
-
-    @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
+        """
+        This is an event listener for the 'on_raw_reaction_add' event.
+        When a reaction is added to any message, this event is triggered.
+        The function filters for the specific message to listen to and then assigns roles.
+        :param payload:
+        :return:
+        """
         load_dotenv(override=True)
         r_roles_msg_id = int(os.getenv("REACTION_ROLES_MESSAGE_ID"))
 
@@ -36,6 +51,13 @@ class ReactionRoles(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_reaction_remove(self, payload):
+        """
+        This is an event listener for the 'on_raw_reaction_remove' event.
+        Like the on_raw_reaction_add event, this event is triggered when a reaction is removed.
+        The function filters for the specific message to listen to and then removes roles.
+        :param payload:
+        :return:
+        """
         load_dotenv(override=True)
         r_roles_msg_id = int(os.getenv("REACTION_ROLES_MESSAGE_ID"))
 
@@ -50,4 +72,9 @@ class ReactionRoles(commands.Cog):
         await user.remove_roles(role)
 
 async def setup(bot):
+    """
+    This function adds the reaction roles functionality to the bot.
+    :param bot:
+    :return:
+    """
     await bot.add_cog(ReactionRoles(bot))

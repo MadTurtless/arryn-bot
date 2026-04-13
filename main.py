@@ -1,3 +1,13 @@
+"""
+Arryn Bot - v1.0.0
+Description:
+This Discord bot is used for administrative tasks in the House Arryn server within the EOV genre.
+Current functionality:
+Reaction Roles
+Planned functionality:
+Event logging
+"""
+
 import asyncio
 import os
 import logging
@@ -20,6 +30,11 @@ bot = commands.Bot(intents=intents, command_prefix="!")
 
 @bot.event
 async def on_ready():
+    """
+    This function is called when the bot is online.
+    It attempts to synchronise all commands
+    :return:
+    """
     print(f"{bot.user} has connected to Discord!")
 
     try:
@@ -29,6 +44,11 @@ async def on_ready():
         print(f"Failed to sync commands: {e}")
 
 async def main():
+    """
+    This is the entry point for the bot.
+    It makes sure to add all cogs and then starts it.
+    :return:
+    """
     async with bot:
         await bot.load_extension("src.classes.commands")
         await bot.load_extension("src.classes.reaction_roles")
