@@ -3,9 +3,12 @@ Registers commands for the bot
 """
 from pathlib import Path
 import os
+
+import discord
 from discord.ext import commands
 from dotenv import load_dotenv, set_key
 
+from classes.database_manager import DatabaseManager
 from src.utils.helper import build_embed, check_perms
 
 
@@ -37,6 +40,7 @@ class Commands(commands.Cog):
         :param bot: discord.ext.commands.Bot object
         """
         self.bot = bot
+        self.mngr = DatabaseManager()
 
     @commands.hybrid_command(
         description="Send the embed message that will be used for reaction roles.")
@@ -66,12 +70,21 @@ class Commands(commands.Cog):
 
         dotenv_path = Path(".env")
         set_key(dotenv_path,"REACTION_ROLES_MESSAGE_ID", str(new_msg.id))
-"""
+
+    @commands.hybrid_command()
+    async def add_user(self, ctx, user: discord.User):
+        self.mngr.add_user(user)
+        await ctx.send("User added successfully!")
+
+    @commands.hybrid_command()
+    async def get_user(self, ctx, user: discord.User):
+        user_id = user.id
+        await ctx.send(self.mngr.get_user(user_id))
+
     @commands.hybrid_command()
     async def check_status(self, ctx):
         await ctx.send("This is the development version of Arryn Aid.\n"
                        "-# Not intended for public use.")
-"""
 
 async def setup(bot):
     """
