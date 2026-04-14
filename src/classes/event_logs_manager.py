@@ -69,6 +69,7 @@ class EventLogsManager(commands.Cog):
         log["msg_id"] = message.id
 
         self.db.add_event(log)
+        await message.add_reaction("\u2705")
 
 async def setup(bot):
     await bot.add_cog(EventLogsManager(bot))
