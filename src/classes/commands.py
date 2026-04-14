@@ -62,11 +62,16 @@ class Commands(commands.Cog):
 
         new_msg = await channel.send(embed=await build_embed())
         await add_reactions(new_msg)
+        await ctx.send("Message sent successfully!")
 
         dotenv_path = Path(".env")
         set_key(dotenv_path,"REACTION_ROLES_MESSAGE_ID", str(new_msg.id))
-        await ctx.send("Message sent successfully!")
-
+"""
+    @commands.hybrid_command()
+    async def check_status(self, ctx):
+        await ctx.send("This is the development version of Arryn Aid.\n"
+                       "-# Not intended for public use.")
+"""
 
 async def setup(bot):
     """

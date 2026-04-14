@@ -52,6 +52,7 @@ async def main():
     async with bot:
         await bot.load_extension("src.classes.commands")
         await bot.load_extension("src.classes.reaction_roles")
+        await bot.load_extension("src.classes.join_manager")
         await bot.start(token)
 
 asyncio.run(main())
