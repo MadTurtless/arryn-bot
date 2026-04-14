@@ -1,3 +1,14 @@
+"""
+Handles listening for event logs and parsing the data to hand off to the database manager.
+
+Expected format:
+    Event Type: [Type Name]
+    Host: [@Mention]
+    Participants: [@Mention1, @Mention2, ...]
+    Proof: [Attached Image or Link]
+Note: the proof line is ignored by the parser.
+"""
+
 import os
 from discord.ext import commands
 from dotenv import load_dotenv
@@ -10,13 +21,20 @@ load_dotenv()
 class EventLogsManager(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.db = DatabaseManager()
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        if message.channel.id != int(os.getenv("EVENT_LOGS_CHANNEL_ID")):
+        """
+        Listens for any message sent in the server.
+        This is then filtered to only messages that are both not from the bot and in the specified channel.
+        When a message meets these criteria, it is first split into multiple lines,
+        then handed off to the helper to parse the data into a dictionary.
+        """
+        if message.author.bot:
             return
 
-        if message.author.bot:
+        if message.channel.id != int(os.getenv("EVENT_LOGS_CHANNEL_ID")):
             return
 
         msg = message.content
@@ -24,8 +42,7 @@ class EventLogsManager(commands.Cog):
         log = parse_event_log(lines)
         log["division"] = "Arryn"
         log["msg_id"] = message.id
-        db = DatabaseManager()
-        db.add_event(log)
+        self.db.add_event(log)
 
 async def setup(bot):
     await bot.add_cog(EventLogsManager(bot))

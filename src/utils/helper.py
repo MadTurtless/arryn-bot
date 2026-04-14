@@ -40,8 +40,9 @@ def parse_event_log(lines):
                     case "Event Type":
                         log["type"] = value
                     case "Host":
-                        log["host_id"] = value.strip("<@").strip(">")
+                        log["host_id"] = value.strip("<@!> ")
                     case "Attendees":
-                        log["participants"] = [p.strip("<@").strip(">") for p in value.split(" ") if p.strip()]
+                        raw_ids = value.replace(",", " ").split(" ")
+                        log["participants"] = [p.strip("<@!> ") for p in raw_ids if p.strip()]
     log["timestamp"] = datetime.datetime.now()
     return log
