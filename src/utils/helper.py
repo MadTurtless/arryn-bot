@@ -1,3 +1,5 @@
+import datetime
+
 import discord
 from discord.ext import commands
 
@@ -28,3 +30,18 @@ async def build_embed():
             """
     )
     return embed
+
+def parse_event_log(lines):
+    log = {}
+    for line in lines:
+        match line.split(": ", 1):
+            case [key, value] if value.strip():
+                match key:
+                    case "Event Type":
+                        log["type"] = value
+                    case "Host":
+                        log["host_id"] = value.strip("<@").strip(">")
+                    case "Attendees":
+                        log["participants"] = [p.strip("<@").strip(">") for p in value.split(" ") if p.strip()]
+    log["timestamp"] = datetime.datetime.now()
+    return log

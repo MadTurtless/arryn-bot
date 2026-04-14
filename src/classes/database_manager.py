@@ -38,9 +38,9 @@ class DatabaseManager:
         self.conn.commit()
 
     def add_event(self, event):
-        query = "INSERT INTO events(division, type, host_id, timestamp) VALUES (?, ?, ?, ?)"
+        query = "INSERT INTO events(division, type, host_id, timestamp, msg_id) VALUES (?, ?, ?, ?, ?)"
         try:
-            self.cursor.execute(query, (event["division"], event["type"], event["host_id"], event["timestamp"]))
+            self.cursor.execute(query, (event["division"], event["type"], event["host_id"], event["timestamp"], event["msg_id"]))
             self.add_event_participants(event["participants"])
             self.conn.commit()
             return 1
