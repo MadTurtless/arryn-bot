@@ -15,12 +15,12 @@ async def add_reactions(msg):
     :param msg: discord.ext.commands.Message object
     :return: void
     """
-    emojis = ["\U0001F1E6\U0001F1FA", #Australian Flag
-              "\U0001F1E7\U0001F1F7", #Brazilian Flag
-              "\U0001F1E8\U0001F1F3", #Chinese Flag
-              "\U0001F1EA\U0001F1FA", #European Flag
-              "\U0001F1FF\U0001F1E6", #South African Flag
-              "\U0001F1FA\U0001F1F8"] #United States Flag
+    emojis = ["\U0001F1FF\U0001F1E6",   #South African Flag
+              "\U0001F1E8\U0001F1F3",   #Chinese Flag
+              "\U0001F1E6\U0001F1FA",   #Australian Flag
+              "\U0001F1EA\U0001F1FA",   #European Flag
+              "\U0001F1FA\U0001F1F8",   #United States Flag
+              "\U0001F1E7\U0001F1F7"]   #Brazilian Flag
     for emoji in emojis:
         await msg.add_reaction(emoji)
     return
