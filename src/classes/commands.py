@@ -1,6 +1,7 @@
 """
 Registers commands for the bot
 """
+import datetime
 from pathlib import Path
 import os
 
@@ -73,13 +74,34 @@ class Commands(commands.Cog):
 
     @commands.hybrid_command()
     async def add_user(self, ctx, user: discord.User):
-        self.mngr.add_user(user)
-        await ctx.send("User added successfully!")
+        res = self.mngr.add_user(user)
+        msg = f"An error occurred while adding user {user.name}. Please try again later." if res == -1 else "User added successfully!"
+        await ctx.send(msg)
 
     @commands.hybrid_command()
     async def get_user(self, ctx, user: discord.User):
         user_id = user.id
         await ctx.send(self.mngr.get_user(user_id))
+
+    @commands.hybrid_command()
+    async def add_event(self, ctx):
+        event = {
+            "division": "Arryn",
+            "type": "rally",
+            "host_id": 339333861173362698,
+            "timestamp": datetime.datetime.now(),
+            "participants": [339333861173362698, 339333861173362698, 339333861173362698]
+        }
+
+        res = self.mngr.add_event(event)
+        msg = f"An error occurred while adding event." if res == -1 else "Event added successfully!"
+        await ctx.send(msg)
+
+    @commands.hybrid_command()
+    async def get_events_by_user(self, ctx, user: discord.User):
+        res = self.mngr.get_events_by_user(user.id)
+        msg = "An error occurred while getting events by user." if res == -1 else res
+        await ctx.send(msg)
 
     @commands.hybrid_command()
     async def check_status(self, ctx):
