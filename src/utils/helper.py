@@ -1,12 +1,12 @@
 import discord
 from discord.ext import commands
 
-permitted_roles = ["Engineer"]
+permitted_roles = [1490821033849262151]
 
 def check_perms():
     async def predicate(ctx):
         for role in ctx.author.roles:
-            if role.name in permitted_roles:
+            if role.id in permitted_roles:
                 return True
 
         await ctx.send("You don't have enough permissions to run this command.")
