@@ -8,8 +8,10 @@ Expected format:
     Proof: [Attached Image or Link]
 Note: the proof line is ignored by the parser.
 """
-
+import asyncio
 import os
+import time
+
 from discord.ext import commands
 from dotenv import load_dotenv
 
@@ -18,10 +20,23 @@ from utils.helper import parse_event_log
 
 load_dotenv()
 
+def validate_event_log(log):
+    """
+    Validates the log dict has the required keys.
+    """
+    required = ["type", "host_id", "participants"]
+    return all(item in log for item in required)
+
 class EventLogsManager(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.db = DatabaseManager()
+        self.channels = {
+            int(os.getenv("ARRYN_LOGS_CHANNEL_ID")): "Arryn",
+            int(os.getenv("KNIGHTS_LOGS_CHANNEL_ID")): "Knights",
+            int(os.getenv("GUARDS_LOGS_CHANNEL_ID")): "Guards",
+            int(os.getenv("CAVALRY_LOGS_CHANNEL_ID")): "Cavalry"
+        }
 
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -30,25 +45,27 @@ class EventLogsManager(commands.Cog):
         This is then filtered to only messages that are both not from the bot and in one of the specified channels.
         When a message meets these criteria, it is first split into multiple lines,
         then handed off to the helper to parse the data into a dictionary.
+
+        If the dictionary returns as invalid, an error message will be sent and it, along with the message, will self-destruct.
         """
         if message.author.bot:
             return
 
-        channels = {
-            int(os.getenv("ARRYN_LOG_CHANNEL_ID")): "Arryn",
-            int(os.getenv("Knights_LOG_CHANNEL_ID")): "Knights",
-            int(os.getenv("GUARDS_LOGS_CHANNEL_ID")): "Guards",
-            int(os.getenv("CAVALRY_LOGS_CHANNEL_ID")): "Cavalry"
-        }
-
-        if message.channel.id not in channels:
+        if message.channel.id not in self.channels:
             return
 
         msg = message.content
         lines = msg.split("\n")
         log = parse_event_log(lines)
 
-        log["division"] = channels[message.channel.id]
+        if not validate_event_log(log):
+            print("Invalid log")
+            await message.reply("Invalid log. Please check the log and try again.", delete_after=5)
+            await asyncio.sleep(10)
+            await message.delete()
+            return
+
+        log["division"] = self.channels[message.channel.id]
         log["msg_id"] = message.id
 
         self.db.add_event(log)
