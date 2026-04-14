@@ -8,11 +8,11 @@ class DatabaseManager:
         self.cursor = self.conn.cursor()
         pass
 
-    def add_user(self, user: discord.User):
+    def add_user(self, user_id: int):
         query = "INSERT INTO users VALUES (?, 0)"
 
         try:
-            self.cursor.execute(query, (user.id,))
+            self.cursor.execute(query, (user_id,))
             self.conn.commit()
             return 1
         except Exception as e:
@@ -30,7 +30,11 @@ class DatabaseManager:
         query = "SELECT id FROM events"
         res = self.cursor.execute(query)
         event_id = res.fetchone()[-1]
+
         for p_id in participants:
+            if not self.get_event(p_id):
+                self.add_user(p_id)
+
             query = "INSERT INTO event_participants(event_id, user_id) VALUES (?, ?)"
             self.cursor.execute(query, (event_id, p_id))
             query = "UPDATE users SET nr_events_attended = nr_events_attended + 1 WHERE id = ?"
@@ -38,6 +42,7 @@ class DatabaseManager:
         self.conn.commit()
 
     def add_event(self, event):
+        event["participants"].append(event["host_id"])
         query = "INSERT INTO events(division, type, host_id, timestamp, msg_id) VALUES (?, ?, ?, ?, ?)"
         try:
             self.cursor.execute(query, (event["division"], event["type"], event["host_id"], event["timestamp"], event["msg_id"]))
