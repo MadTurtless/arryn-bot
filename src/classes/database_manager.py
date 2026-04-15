@@ -14,7 +14,45 @@ class DatabaseManager:
         """
         self.conn = sqlite3.connect("data/db.sqlite")
         self.cursor = self.conn.cursor()
-        pass
+        self._create_tables()
+
+    def _create_tables(self):
+        users_table = """
+        CREATE TABLE IF NOT EXISTS users
+        (
+            id                 INTEGER PRIMARY KEY,
+            nr_events_attended INTEGER DEFAULT 0
+        );
+        """
+
+        events_table = """
+        CREATE TABLE IF NOT EXISTS events \
+        (
+            id        INTEGER PRIMARY KEY AUTOINCREMENT,
+            division  TEXT,
+            type      TEXT,
+            host_id    INTEGER,
+            timestamp TEXT,
+            msg_id    INTEGER,
+            FOREIGN KEY (host_id) REFERENCES users (id)
+        );
+        """
+
+        participants_table = """
+        CREATE TABLE IF NOT EXISTS event_participants
+        (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            event_id INTEGER,
+            user_id  INTEGER,
+            FOREIGN KEY (event_id) REFERENCES events (id),
+            FOREIGN KEY (user_id) REFERENCES users (id)
+            );
+        """
+
+        self.cursor.execute(users_table)
+        self.cursor.execute(events_table)
+        self.cursor.execute(participants_table)
+        self.conn.commit()
 
     def add_user(self, user_id: int):
         """
