@@ -12,6 +12,7 @@ from dotenv import load_dotenv, set_key
 from classes.database_manager import DatabaseManager
 from classes.jokes import Jokes
 from src.utils.helper import build_embed, check_perms
+from utils.helper import build_events_embed
 
 
 async def add_reactions(msg):
@@ -47,7 +48,7 @@ class Commands(commands.Cog):
     @commands.hybrid_command(
         description="Send the embed message that will be used for reaction roles.")
     @check_perms()
-    async def send_reaction_embed(self, ctx):
+    async def setup(self, ctx):
         """
         This function/command sends an embed message to a specific channel and adds reactions to it.
         These are then used to assign roles.
@@ -74,35 +75,9 @@ class Commands(commands.Cog):
         set_key(dotenv_path,"REACTION_ROLES_MESSAGE_ID", str(new_msg.id))
 
     @commands.hybrid_command()
-    async def add_user(self, ctx, user: discord.User):
-        res = self.mngr.add_user(user)
-        msg = f"An error occurred while adding user {user.name}. Please try again later." if res == -1 else "User added successfully!"
-        await ctx.send(msg)
-
-    @commands.hybrid_command()
-    async def get_user(self, ctx, user: discord.User):
-        user_id = user.id
-        await ctx.send(self.mngr.get_user(user_id))
-
-    @commands.hybrid_command()
-    async def add_event(self, ctx):
-        event = {
-            "division": "Arryn",
-            "type": "rally",
-            "host_id": 339333861173362698,
-            "timestamp": datetime.datetime.now(),
-            "participants": [339333861173362698, 339333861173362698, 339333861173362698]
-        }
-
-        res = self.mngr.add_event(event)
-        msg = f"An error occurred while adding event." if res == -1 else "Event added successfully!"
-        await ctx.send(msg)
-
-    @commands.hybrid_command()
-    async def get_events_by_user(self, ctx, user: discord.User):
+    async def events(self, ctx, user: discord.User):
         res = self.mngr.get_events_by_user(user.id)
-        msg = "An error occurred while getting events by user." if res == -1 else res
-        await ctx.send(msg)
+        await ctx.send("An error occurred while getting events by user.") if res == -1 else await ctx.send(embed=await build_events_embed(res, user, ctx))
 
     @commands.hybrid_command()
     async def joke(self, ctx):
@@ -111,9 +86,13 @@ class Commands(commands.Cog):
         await ctx.send(joke)
 
     @commands.hybrid_command()
-    async def check_status(self, ctx):
-        await ctx.send("This is the development version of Arryn Aid.\n"
-                       "-# Not intended for public use.")
+    async def status(self, ctx):
+        status = os.getenv("STATUS")
+        if status == "development":
+            await ctx.send("This is the development version of Arryn Aid.\n"
+                            "-# Not intended for public use.")
+            return
+        await ctx.send("This is the production version of Arryn Aid.")
 
 async def setup(bot):
     """

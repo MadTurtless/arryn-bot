@@ -1,9 +1,12 @@
-import datetime
+from datetime import datetime
 
 import discord
 from discord.ext import commands
 
+from classes.database_manager import DatabaseManager
+
 permitted_roles = [1490821033849262151]
+mgr = DatabaseManager()
 
 def check_perms():
     async def predicate(ctx):
@@ -31,6 +34,26 @@ async def build_embed():
     )
     return embed
 
+async def build_events_embed(data, user, ctx):
+    guild = ctx.guild
+
+    desc = ""
+    for entry in data:
+        event = mgr.get_event(entry[1])
+        channel = guild.get_channel(event[5])
+        msg = await channel.fetch_message(event[6])
+        timestamp = datetime.fromisoformat(event[4]).strftime("%d/%m/%Y %H:%M")
+        desc += (f"**{event[2]}:**\n"
+                 f"`{timestamp}`\n"
+                 f"{msg.jump_url}\n\n")
+
+    embed = discord.Embed(
+        title=f"Events for {user.name}",
+        colour=discord.Colour.blue(),
+        description=desc
+    )
+    return embed
+
 def parse_event_log(lines):
     log = {}
     for line in lines:
@@ -44,5 +67,5 @@ def parse_event_log(lines):
                     case "Attendees":
                         raw_ids = value.replace(",", " ").split(" ")
                         log["participants"] = [p.strip("<@!> ") for p in raw_ids if p.strip()]
-    log["timestamp"] = datetime.datetime.now()
+    log["timestamp"] = datetime.now()
     return log

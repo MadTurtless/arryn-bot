@@ -27,14 +27,15 @@ class DatabaseManager:
         """
 
         events_table = """
-        CREATE TABLE IF NOT EXISTS events \
+        CREATE TABLE IF NOT EXISTS events
         (
-            id        INTEGER PRIMARY KEY AUTOINCREMENT,
-            division  TEXT,
-            type      TEXT,
-            host_id    INTEGER,
-            timestamp TEXT,
-            msg_id    INTEGER,
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            division    TEXT,
+            type        TEXT,
+            host_id     INTEGER,
+            timestamp   TEXT,
+            channel_id  INTEGER,
+            msg_id      INTEGER,
             FOREIGN KEY (host_id) REFERENCES users (id)
         );
         """
@@ -81,7 +82,7 @@ class DatabaseManager:
         """
         query = "SELECT id FROM events"
         res = self.cursor.execute(query)
-        event_id = res.fetchone()[-1]
+        event_id = res.fetchall()[-1][0]
 
         try:
             for p_id in participants:
@@ -112,9 +113,9 @@ class DatabaseManager:
         }
         """
         event["participants"].append(event["host_id"])
-        query = "INSERT INTO events(division, type, host_id, timestamp, msg_id) VALUES (?, ?, ?, ?, ?)"
+        query = "INSERT INTO events(division, type, host_id, timestamp, channel_id, msg_id) VALUES (?, ?, ?, ?, ?, ?)"
         try:
-            self.cursor.execute(query, (event["division"], event["type"], event["host_id"], event["timestamp"], event["msg_id"]))
+            self.cursor.execute(query, (event["division"], event["type"], event["host_id"], event["timestamp"].isoformat(), event["channel_id"], event["msg_id"]))
             self.add_event_participants(event["participants"])
             self.conn.commit()
             return 1

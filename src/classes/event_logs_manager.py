@@ -10,7 +10,6 @@ Note: the proof line is ignored by the parser.
 """
 import asyncio
 import os
-import time
 
 from discord.ext import commands
 from dotenv import load_dotenv
@@ -66,6 +65,7 @@ class EventLogsManager(commands.Cog):
             return
 
         log["division"] = self.channels[message.channel.id]
+        log["channel_id"] = message.channel.id
         log["msg_id"] = message.id
 
         self.db.add_event(log)
