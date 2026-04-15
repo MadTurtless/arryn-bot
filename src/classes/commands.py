@@ -10,6 +10,7 @@ from discord.ext import commands
 from dotenv import load_dotenv, set_key
 
 from classes.database_manager import DatabaseManager
+from classes.jokes import Jokes
 from src.utils.helper import build_embed, check_perms
 
 
@@ -102,6 +103,12 @@ class Commands(commands.Cog):
         res = self.mngr.get_events_by_user(user.id)
         msg = "An error occurred while getting events by user." if res == -1 else res
         await ctx.send(msg)
+
+    @commands.hybrid_command()
+    async def joke(self, ctx):
+        joke_obj = Jokes()
+        joke = joke_obj.get_joke()
+        await ctx.send(joke)
 
     @commands.hybrid_command()
     async def check_status(self, ctx):
