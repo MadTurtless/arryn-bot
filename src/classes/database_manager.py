@@ -5,8 +5,6 @@ Important: All database actions should go through this class. No SQL in other fi
 
 import sqlite3
 
-import discord
-
 class DatabaseManager:
     def __init__(self):
         """
@@ -17,6 +15,9 @@ class DatabaseManager:
         self._create_tables()
 
     def _create_tables(self):
+        """
+        Creates the tables in the database if they don't yet exist.
+        """
         users_table = """
         CREATE TABLE IF NOT EXISTS users
         (
@@ -49,10 +50,15 @@ class DatabaseManager:
             );
         """
 
-        self.cursor.execute(users_table)
-        self.cursor.execute(events_table)
-        self.cursor.execute(participants_table)
-        self.conn.commit()
+        try:
+            self.cursor.execute(users_table)
+            self.cursor.execute(events_table)
+            self.cursor.execute(participants_table)
+            self.conn.commit()
+            return 1
+        except Exception as e:
+            print(e)
+            return -1
 
     def add_user(self, user_id: int):
         """
@@ -68,16 +74,6 @@ class DatabaseManager:
             print(e)
             return -1
 
-    def get_user(self, user_id: int):
-        """
-        Get a user's database entry from its id.
-        """
-        query = "SELECT * FROM users WHERE id = ?"
-
-        self.cursor.execute(query, (user_id,))
-        user = self.cursor.fetchone()
-        return user
-
     def add_event_participants(self, participants):
         """
         Adds a list of participants to the event_participants table using their ids.
@@ -87,15 +83,19 @@ class DatabaseManager:
         res = self.cursor.execute(query)
         event_id = res.fetchone()[-1]
 
-        for p_id in participants:
-            if not self.get_user(p_id):
-                self.add_user(p_id)
+        try:
+            for p_id in participants:
+                if not self.get_user(p_id):
+                    self.add_user(p_id)
 
-            query = "INSERT INTO event_participants(event_id, user_id) VALUES (?, ?)"
-            self.cursor.execute(query, (event_id, p_id))
-            query = "UPDATE users SET nr_events_attended = nr_events_attended + 1 WHERE id = ?"
-            self.cursor.execute(query, (p_id,))
-        self.conn.commit()
+                query = "INSERT INTO event_participants(event_id, user_id) VALUES (?, ?)"
+                self.cursor.execute(query, (event_id, p_id))
+                query = "UPDATE users SET nr_events_attended = nr_events_attended + 1 WHERE id = ?"
+                self.cursor.execute(query, (p_id,))
+            self.conn.commit()
+        except Exception as e:
+            print(e)
+            return -1
 
     def add_event(self, event):
         """
@@ -122,6 +122,20 @@ class DatabaseManager:
             print(e)
             return -1
 
+    def get_user(self, user_id: int):
+        """
+        Get a user's database entry from its id.
+        """
+        query = "SELECT * FROM users WHERE id = ?"
+
+        try:
+            self.cursor.execute(query, (user_id,))
+            user = self.cursor.fetchone()
+            return user
+        except Exception as e:
+            print(e)
+            return -1
+
     def get_event(self, event_id: int):
         """
         Get an event's database entry from its id.
@@ -144,6 +158,19 @@ class DatabaseManager:
 
         try:
             self.cursor.execute(query, (user_id,))
+            events = self.cursor.fetchall()
+            return events
+        except Exception as e:
+            print(e)
+            return -1
+
+    def get_events_by_division(self, division: str):
+        """
+        Get all events from a division.
+        """
+        query = "SELECT * FROM events WHERE division = ?"
+        try:
+            self.cursor.execute(query, (division,))
             events = self.cursor.fetchall()
             return events
         except Exception as e:
