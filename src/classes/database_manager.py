@@ -115,7 +115,8 @@ class DatabaseManager:
         event["participants"].append(event["host_id"])
         query = "INSERT INTO events(division, type, host_id, timestamp, channel_id, msg_id) VALUES (?, ?, ?, ?, ?, ?)"
         try:
-            self.cursor.execute(query, (event["division"], event["type"], event["host_id"], event["timestamp"].isoformat(), event["channel_id"], event["msg_id"]))
+            self.cursor.execute(query, (event["division"], event["type"], event["host_id"],
+                                        event["timestamp"].isoformat(), event["channel_id"], event["msg_id"]))
             self.add_event_participants(event["participants"])
             self.conn.commit()
             return 1

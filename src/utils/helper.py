@@ -5,7 +5,7 @@ from discord.ext import commands
 
 from classes.database_manager import DatabaseManager
 
-permitted_roles = [1490821033849262151]
+permitted_roles = [1490821033849262151, 1492250702955942029]
 mgr = DatabaseManager()
 
 def check_perms():
@@ -14,11 +14,11 @@ def check_perms():
             if role.id in permitted_roles:
                 return True
 
-        await ctx.send("You don't have enough permissions to run this command.")
+        await ctx.send("You don't have enough permissions to run this command.", delete_after=5)
         return False
     return commands.check(predicate)
 
-async def build_embed():
+async def build_setup_embed():
     embed = discord.Embed(
         title="Reaction Roles",
         colour=discord.Colour.blue(),

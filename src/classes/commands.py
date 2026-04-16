@@ -1,7 +1,6 @@
 """
 Registers commands for the bot
 """
-import datetime
 from pathlib import Path
 import os
 
@@ -9,10 +8,10 @@ import discord
 from discord.ext import commands
 from dotenv import load_dotenv, set_key
 
-from classes.database_manager import DatabaseManager
-from classes.jokes import Jokes
-from src.utils.helper import build_embed, check_perms
-from utils.helper import build_events_embed
+from src.classes.database_manager import DatabaseManager
+from src.classes.jokes import Jokes
+from src.utils.helper import build_setup_embed, check_perms, build_events_embed
+from utils.helper import permitted_roles
 
 
 async def add_reactions(msg):
@@ -67,7 +66,7 @@ class Commands(commands.Cog):
                     await ctx.send("Message already exists!")
                     return
 
-        new_msg = await channel.send(embed=await build_embed())
+        new_msg = await channel.send(embed=await build_setup_embed())
         await add_reactions(new_msg)
         await ctx.send("Message sent successfully!")
 
@@ -76,6 +75,13 @@ class Commands(commands.Cog):
 
     @commands.hybrid_command()
     async def events(self, ctx, user: discord.User):
+        is_high_rank = any(role.id in permitted_roles for role in user.roles)
+        is_self = user.id == ctx.author.id
+
+        if not (is_high_rank or is_self):
+            await ctx.send("You don't have enough permissions to run this command for another user!", delete_after=5)
+            return
+
         res = self.mngr.get_events_by_user(user.id)
         await ctx.send("An error occurred while getting events by user.") if res == -1 else await ctx.send(embed=await build_events_embed(res, user, ctx))
 
@@ -86,6 +92,7 @@ class Commands(commands.Cog):
         await ctx.send(joke)
 
     @commands.hybrid_command()
+    @check_perms()
     async def status(self, ctx):
         status = os.getenv("STATUS")
         if status == "development":
