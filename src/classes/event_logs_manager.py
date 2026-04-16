@@ -14,8 +14,8 @@ import os
 from discord.ext import commands
 from dotenv import load_dotenv
 
-from classes.database_manager import DatabaseManager
-from utils.helper import parse_event_log
+from src.classes.database_manager import DatabaseManager
+from src.utils.helper import parse_event_log
 
 load_dotenv()
 

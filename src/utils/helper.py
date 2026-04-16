@@ -3,7 +3,7 @@ from datetime import datetime
 import discord
 from discord.ext import commands
 
-from classes.database_manager import DatabaseManager
+from src.classes.database_manager import DatabaseManager
 
 permitted_roles = [1490821033849262151, 1492250702955942029]
 mgr = DatabaseManager()

@@ -11,7 +11,7 @@ from dotenv import load_dotenv, set_key
 from src.classes.database_manager import DatabaseManager
 from src.classes.jokes import Jokes
 from src.utils.helper import build_setup_embed, check_perms, build_events_embed
-from utils.helper import permitted_roles
+from src.utils.helper import permitted_roles
 
 
 async def add_reactions(msg):
