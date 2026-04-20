@@ -11,6 +11,8 @@ Event logging
 import asyncio
 import os
 import logging
+import sys
+
 import discord
 from discord.ext import commands
 
@@ -20,7 +22,14 @@ load_dotenv()
 
 token = os.getenv("DISCORD_TOKEN")
 
-handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="w")
+logger = logging.getLogger("discord")
+logging.basicConfig(level=logging.INFO,
+                    format="%(asctime)s - [%(levelname)s] - %(message)s",
+                    handlers=[
+                        logging.FileHandler(filename="discord.log", encoding="utf-8", mode="a+"),
+                              logging.StreamHandler(stream=sys.stdout)
+                    ])
+
 intents = discord.Intents.default()
 intents.message_content = True
 intents.reactions = True
@@ -35,13 +44,13 @@ async def on_ready():
     It attempts to synchronise all commands
     :return:
     """
-    print(f"{bot.user} has connected to Discord!")
+    logger.info(f"{bot.user} has connected to Discord!")
 
     try:
         synced = await bot.tree.sync()
-        print(f"{bot.user} has synced {len(synced)} commands")
+        logger.info(f"{bot.user} has synced {len(synced)} commands")
     except Exception as e:
-        print(f"Failed to sync commands: {e}")
+        logger.error(f"Failed to sync commands: {e}")
 
 async def main():
     """
@@ -49,11 +58,15 @@ async def main():
     It makes sure to add all cogs and then starts it.
     :return:
     """
+    extensions = ["src.classes.commands", "src.classes.reaction_roles", "src.classes.join_manager", "src.classes.event_logs_manager"]
+
     async with bot:
-        await bot.load_extension("src.classes.commands")
-        await bot.load_extension("src.classes.reaction_roles")
-        await bot.load_extension("src.classes.join_manager")
-        await bot.load_extension("src.classes.event_logs_manager")
+        for e in extensions:
+            await bot.load_extension(e)
         await bot.start(token)
 
-asyncio.run(main())
+try:
+    asyncio.run(main())
+except KeyboardInterrupt:
+    logger.info("Shutting down...\n"
+                "================================================================\n")

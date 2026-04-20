@@ -1,6 +1,8 @@
 """
 Registers commands for the bot
 """
+import logging
+import sys
 from pathlib import Path
 import os
 
@@ -13,6 +15,13 @@ from src.classes.jokes import Jokes
 from src.utils.helper import build_setup_embed, check_perms, build_events_embed
 from src.utils.helper import permitted_roles
 
+logger = logging.getLogger("discord")
+logging.basicConfig(level=logging.INFO,
+                    format="%(asctime)s - [%(levelname)s] - %(message)s",
+                    handlers=[
+                        logging.FileHandler(filename="discord.log", encoding="utf-8", mode="a+"),
+                              logging.StreamHandler(stream=sys.stdout)
+                    ])
 
 async def add_reactions(msg):
     """
@@ -75,7 +84,7 @@ class Commands(commands.Cog):
 
     @commands.hybrid_command()
     async def events(self, ctx, user: discord.User):
-        is_high_rank = any(role.id in permitted_roles for role in user.roles)
+        is_high_rank = any(role.id in permitted_roles for role in ctx.author.roles)
         is_self = user.id == ctx.author.id
 
         if not (is_high_rank or is_self):

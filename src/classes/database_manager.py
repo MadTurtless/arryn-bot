@@ -2,8 +2,17 @@
 Handles interaction between the bot and the database.
 Important: All database actions should go through this class. No SQL in other files!
 """
-
+import logging
 import sqlite3
+import sys
+
+logger = logging.getLogger("discord")
+logging.basicConfig(level=logging.INFO,
+                    format="%(asctime)s - [%(levelname)s] - %(message)s",
+                    handlers=[
+                        logging.FileHandler(filename="discord.log", encoding="utf-8", mode="a+"),
+                              logging.StreamHandler(stream=sys.stdout)
+                    ])
 
 class DatabaseManager:
     def __init__(self):
@@ -58,7 +67,7 @@ class DatabaseManager:
             self.conn.commit()
             return 1
         except Exception as e:
-            print(e)
+            logger.error(e)
             return -1
 
     def add_user(self, user_id: int):
@@ -72,7 +81,7 @@ class DatabaseManager:
             self.conn.commit()
             return 1
         except Exception as e:
-            print(e)
+            logger.error(e)
             return -1
 
     def add_event_participants(self, participants):
@@ -95,7 +104,7 @@ class DatabaseManager:
                 self.cursor.execute(query, (p_id,))
             self.conn.commit()
         except Exception as e:
-            print(e)
+            logger.error(e)
             return -1
 
     def add_event(self, event):
@@ -121,7 +130,7 @@ class DatabaseManager:
             self.conn.commit()
             return 1
         except Exception as e:
-            print(e)
+            logger.error(e)
             return -1
 
     def get_user(self, user_id: int):
@@ -135,7 +144,7 @@ class DatabaseManager:
             user = self.cursor.fetchone()
             return user
         except Exception as e:
-            print(e)
+            logger.error(e)
             return -1
 
     def get_event(self, event_id: int):
@@ -149,7 +158,7 @@ class DatabaseManager:
             event = self.cursor.fetchone()
             return event
         except Exception as e:
-            print(e)
+            logger.error(e)
             return -1
 
     def get_events_by_user(self, user_id: int):
@@ -163,7 +172,7 @@ class DatabaseManager:
             events = self.cursor.fetchall()
             return events
         except Exception as e:
-            print(e)
+            logger.error(e)
             return -1
 
     def get_events_by_division(self, division: str):
@@ -176,5 +185,5 @@ class DatabaseManager:
             events = self.cursor.fetchall()
             return events
         except Exception as e:
-            print(e)
+            logger.error(e)
             return -1

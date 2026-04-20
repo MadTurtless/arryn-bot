@@ -9,13 +9,23 @@ Expected format:
 Note: the proof line is ignored by the parser.
 """
 import asyncio
+import logging
 import os
+import sys
 
 from discord.ext import commands
 from dotenv import load_dotenv
 
 from src.classes.database_manager import DatabaseManager
 from src.utils.helper import parse_event_log
+
+logger = logging.getLogger("discord")
+logging.basicConfig(level=logging.INFO,
+                    format="%(asctime)s - [%(levelname)s] - %(message)s",
+                    handlers=[
+                        logging.FileHandler(filename="discord.log", encoding="utf-8", mode="a+"),
+                              logging.StreamHandler(stream=sys.stdout)
+                    ])
 
 load_dotenv()
 
@@ -58,7 +68,7 @@ class EventLogsManager(commands.Cog):
         log = parse_event_log(lines)
 
         if not validate_event_log(log):
-            print("Invalid log")
+            logger.warning(f"Invalid log from user {message.author}: '{msg}'")
             await message.reply("Invalid log. Please check the log and try again.", delete_after=5)
             await asyncio.sleep(10)
             await message.delete()
