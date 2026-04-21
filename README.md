@@ -6,6 +6,8 @@ Welcome to the Arryn Aid repo! This hosts the code used by the Discord bot in Ho
 **Event Logging:** Logs events sent in specific channels. Using the specified format, the event data is parsed, validated, and added to a SQLite database.
 Note: invalid logs are deleted after 10s to prevent chat clutter. Valid logs get a checkmark.
 
+If an event log is edited, the new log is checked against the old one and updated where necessary.
+
 **Planned:** Entry message, auditing
 ## Event Log Format
 Logs must follow this structure for the parser to validate them properly:

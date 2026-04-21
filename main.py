@@ -1,5 +1,5 @@
 """
-Arryn Bot - v1.0.0
+Arryn Bot - v1.0.1
 Description:
 This Discord bot is used for administrative tasks in the House Arryn server within the EOV genre.
 Current functionality:
