@@ -84,15 +84,11 @@ class DatabaseManager:
             logger.error(e)
             return -1
 
-    def add_event_participants(self, participants):
+    def add_event_participants(self, event_id, participants):
         """
         Adds a list of participants to the event_participants table using their ids.
         If a user isn't yet known, it will also be added here.
         """
-        query = "SELECT id FROM events"
-        res = self.cursor.execute(query)
-        event_id = res.fetchall()[-1][0]
-
         try:
             for p_id in participants:
                 if not self.get_user(p_id):
@@ -103,6 +99,20 @@ class DatabaseManager:
                 query = "UPDATE users SET nr_events_attended = nr_events_attended + 1 WHERE id = ?"
                 self.cursor.execute(query, (p_id,))
             self.conn.commit()
+        except Exception as e:
+            logger.error(e)
+            return -1
+
+    def get_event_participants(self, event_id: int):
+        """
+        Get a list of participants from the event_participants table using the event id.
+        """
+        query = "SELECT user_id FROM event_participants WHERE event_id = ?"
+
+        try:
+            self.cursor.execute(query, (event_id,))
+            participants = self.cursor.fetchall()
+            return participants
         except Exception as e:
             logger.error(e)
             return -1
@@ -121,14 +131,31 @@ class DatabaseManager:
         "msg_id": int,
         }
         """
-        event["participants"].append(event["host_id"])
         query = "INSERT INTO events(division, type, host_id, timestamp, channel_id, msg_id) VALUES (?, ?, ?, ?, ?, ?)"
         try:
             self.cursor.execute(query, (event["division"], event["type"], event["host_id"],
                                         event["timestamp"].isoformat(), event["channel_id"], event["msg_id"]))
-            self.add_event_participants(event["participants"])
+
+            query = "SELECT id FROM events"
+            res = self.cursor.execute(query)
+            event_id = res.fetchall()[-1][0]
+
+            self.add_event_participants(event_id, event["participants"])
             self.conn.commit()
             return 1
+        except Exception as e:
+            logger.error(e)
+            return -1
+
+    def update_event_type(self, event_id, event_type):
+        """
+        Update the event's type
+        """
+        query = "UPDATE events SET type = ?  WHERE id = ?"
+
+        try:
+            self.cursor.execute(query, (event_type, event_id))
+            self.conn.commit()
         except Exception as e:
             logger.error(e)
             return -1
@@ -155,6 +182,20 @@ class DatabaseManager:
 
         try:
             self.cursor.execute(query, (event_id,))
+            event = self.cursor.fetchone()
+            return event
+        except Exception as e:
+            logger.error(e)
+            return -1
+
+    def get_event_by_msg_id(self, msg_id: int):
+        """
+        Get an event's database entry from its message id.
+        """
+        query = "SELECT * FROM events WHERE msg_id = ?"
+
+        try:
+            self.cursor.execute(query, (msg_id,))
             event = self.cursor.fetchone()
             return event
         except Exception as e:

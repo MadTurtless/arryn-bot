@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 
 import discord
@@ -5,7 +6,14 @@ from discord.ext import commands
 
 from src.classes.database_manager import DatabaseManager
 
-permitted_roles = [1490821033849262151, 1492250702955942029]
+permitted_roles = [1490821033849262151, 1492250702955942029, 1383503369838002286]
+channels = {
+            int(os.getenv("ARRYN_LOGS_CHANNEL_ID")): "Arryn",
+            int(os.getenv("KNIGHTS_LOGS_CHANNEL_ID")): "Knights",
+            int(os.getenv("GUARDS_LOGS_CHANNEL_ID")): "Guards",
+            int(os.getenv("CAVALRY_LOGS_CHANNEL_ID")): "Cavalry"
+        }
+
 mgr = DatabaseManager()
 
 def check_perms():
@@ -54,7 +62,9 @@ async def build_events_embed(data, user, ctx):
     )
     return embed
 
-def parse_event_log(lines):
+def parse_event_log(message):
+    lines = message.content.split("\n")
+
     log = {}
     for line in lines:
         match line.split(": ", 1):
@@ -63,9 +73,35 @@ def parse_event_log(lines):
                     case "Event Type":
                         log["type"] = value
                     case "Host":
-                        log["host_id"] = value.strip("<@!> ")
+                        log["host_id"] = int(value.strip("<@!> "))
                     case "Attendees":
                         raw_ids = value.replace(",", " ").split(" ")
                         log["participants"] = [p.strip("<@!> ") for p in raw_ids if p.strip()]
     log["timestamp"] = datetime.now()
+    log["division"] = channels[message.channel.id]
+    log["channel_id"] = message.channel.id
+    log["msg_id"] = message.id
+
+    log["participants"].append(log["host_id"])
+    return log
+
+def get_original_log(msg_id):
+    event = mgr.get_event_by_msg_id(msg_id)
+    log = {
+        "type": event[2],
+        "host_id": event[3],
+        "participants": [],
+        "timestamp": datetime.now(),
+        "division": event[1],
+        "channel_id": event[5],
+        "msg_id": event[6]
+    }
+
+    event_id = event[0]
+    log["event_id"] = event_id
+
+    attendees = mgr.get_event_participants(event_id)
+    for i in attendees:
+        log["participants"].append(i[0])
+
     return log

@@ -13,11 +13,13 @@ import logging
 import os
 import sys
 
+from discord import RawMessageUpdateEvent
 from discord.ext import commands
 from dotenv import load_dotenv
 
 from src.classes.database_manager import DatabaseManager
 from src.utils.helper import parse_event_log
+from utils.helper import get_original_log
 
 logger = logging.getLogger("discord")
 logging.basicConfig(level=logging.INFO,
@@ -52,8 +54,7 @@ class EventLogsManager(commands.Cog):
         """
         Listens for any message sent in the server.
         This is then filtered to only messages that are both not from the bot and in one of the specified channels.
-        When a message meets these criteria, it is first split into multiple lines,
-        then handed off to the helper to parse the data into a dictionary.
+        When a message meets these criteria, it is handed off to the helper to parse the data into a dictionary.
 
         If the dictionary returns as invalid, an error message will be sent and it, along with the message, will self-destruct.
         """
@@ -63,23 +64,52 @@ class EventLogsManager(commands.Cog):
         if message.channel.id not in self.channels:
             return
 
-        msg = message.content
-        lines = msg.split("\n")
-        log = parse_event_log(lines)
+        log = parse_event_log(message)
 
         if not validate_event_log(log):
-            logger.warning(f"Invalid log from user {message.author}: '{msg}'")
+            logger.warning(f"Invalid log from user {message.author}: '{message.content}'")
             await message.reply("Invalid log. Please check the log and try again.", delete_after=5)
             await asyncio.sleep(10)
             await message.delete()
             return
 
-        log["division"] = self.channels[message.channel.id]
-        log["channel_id"] = message.channel.id
-        log["msg_id"] = message.id
-
         self.db.add_event(log)
         await message.add_reaction("\u2705")
+
+    @commands.Cog.listener()
+    async def on_raw_message_edit(self, payload):
+        """
+        Listens for any message edited in the server.
+        This is then filtered to only messages that are not from the bot and in one of the specified channels.
+        When a message meets these criteria, it is compared to the previous interation (rebuilt from the data stored in the database).
+
+        If the event type or number of attendees are changed, the db entry is updated.
+        """
+        old_log = get_original_log(payload.message.id)
+        new_log = parse_event_log(payload.message)
+
+        new_users = []
+
+        for u_id in new_log["participants"]:
+            if not int(u_id) in old_log["participants"]:
+                new_users.append(u_id)
+
+        if new_users:
+            print(old_log["participants"])
+            print(new_log["participants"])
+            print(new_users)
+            self.db.add_event_participants(old_log["event_id"], new_users)
+            logger.info(
+                f"Event log {old_log['msg_id']} updated. Changed attendees from {old_log['participants']} -> {new_log['participants']}")
+            await payload.message.reply("Event log updated successfully, new attendees added!", delete_after=5)
+
+
+        if new_log["type"] != old_log["type"]:
+            self.db.update_event_type(old_log["event_id"], new_log["type"])
+            logger.info(f"Event log {old_log['msg_id']} updated. Changed type to {new_log['type']}")
+            await payload.message.reply("Event log updated successfully, type changed!", delete_after=5)
+
+
 
 async def setup(bot):
     await bot.add_cog(EventLogsManager(bot))
