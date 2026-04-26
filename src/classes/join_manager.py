@@ -14,8 +14,11 @@ class JoinManager(commands.Cog):
             return
 
         guild = member.guild
-        role_id = os.getenv("JOIN_ROLE_ID")
+        print(guild)
+        role_id = int(os.getenv("JOIN_ROLE_ID"))
+        print(role_id)
         role = guild.get_role(role_id)
+        print(role)
         await member.add_roles(role)
 
 async def setup(bot):
