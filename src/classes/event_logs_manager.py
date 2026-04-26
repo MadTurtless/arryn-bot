@@ -17,8 +17,7 @@ from discord.ext import commands
 from dotenv import load_dotenv
 
 from src.classes.database_manager import DatabaseManager
-from src.utils.helper import parse_event_log
-from utils.helper import get_original_log
+from src.utils.helper import parse_event_log, get_original_log
 
 logger = logging.getLogger("discord")
 logging.basicConfig(level=logging.INFO,
