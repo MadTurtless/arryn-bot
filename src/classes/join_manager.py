@@ -1,4 +1,5 @@
-import dotenv
+import os
+
 from discord.ext import commands
 from dotenv import load_dotenv
 
@@ -13,7 +14,7 @@ class JoinManager(commands.Cog):
             return
 
         guild = member.guild
-        role_id = dotenv.get_key("JOIN_ROLE_ID")
+        role_id = os.getenv("JOIN_ROLE_ID")
         role = guild.get_role(role_id)
         await member.add_roles(role)
 
