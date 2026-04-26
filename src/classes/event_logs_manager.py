@@ -13,7 +13,6 @@ import logging
 import os
 import sys
 
-from discord import RawMessageUpdateEvent
 from discord.ext import commands
 from dotenv import load_dotenv
 

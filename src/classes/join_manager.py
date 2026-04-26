@@ -1,8 +1,11 @@
+import dotenv
 from discord.ext import commands
+from dotenv import load_dotenv
 
 class JoinManager(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        load_dotenv()
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
@@ -10,7 +13,8 @@ class JoinManager(commands.Cog):
             return
 
         guild = member.guild
-        role = guild.get_role(1490974238864183326)
+        role_id = dotenv.get_key("JOIN_ROLE_ID")
+        role = guild.get_role(role_id)
         await member.add_roles(role)
 
 async def setup(bot):
